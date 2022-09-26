@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Logo, FormRow, Alert } from '../components';
+import { useAppConsumer } from '../context/appContext';
 import Wrapper from '../assets/wrappers/RegisterPage';
 
 const initialState = {
@@ -7,19 +8,24 @@ const initialState = {
   email: '',
   password: '',
   isMember: true,
-  showAlert: false,
 };
 
 const Register = () => {
   const [values, setValues] = useState(initialState);
+  const { isLoading, showAlert, displayAlert } = useAppConsumer();
 
   const handleChange = e => {
-    console.log(e.target);
+    setValues({ ...values, [e.target.name]: e.target.value });
   };
 
   const onSubmit = e => {
     e.preventDefault();
-    console.log(e.target);
+    const { name, email, password, isMember } = values;
+    if (!email || !password || (!isMember && !name)) {
+      console.log(values);
+      displayAlert();
+      return;
+    }
   };
 
   const toggleMember = () => {
@@ -31,7 +37,7 @@ const Register = () => {
       <form className='form' onSubmit={onSubmit}>
         <Logo />
         <h3>{values.isMember ? 'Login' : 'Register'}</h3>
-        {values.showAlert && <Alert />}
+        {showAlert && <Alert />}
         {/* name field */}
         {!values.isMember && (
           <FormRow type='text' name='name' value={values.name} handleChange={handleChange} labelText='name' />
@@ -52,6 +58,9 @@ const Register = () => {
           handleChange={handleChange}
           labelText='password'
         />
+        <button type='submit' className='btn btn-block' disabled={isLoading}>
+          submit
+        </button>
         <p>
           {values.isMember ? 'Not a member yet?' : 'Already a member?'}
 
@@ -59,9 +68,6 @@ const Register = () => {
             {values.isMember ? 'Register' : 'Login'}
           </button>
         </p>
-        <button type='submit' className='btn btn-block'>
-          submit
-        </button>
       </form>
     </Wrapper>
   );

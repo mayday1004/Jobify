@@ -1,5 +1,9 @@
+import { useAppConsumer } from '../context/appContext';
+
 const Alert = () => {
-  return <div className='alert alert-danger'>alert goes here</div>;
+  const { alertText, alertType } = useAppConsumer();
+  console.log(alertText, alertType);
+  return <div className={`alert alert-${alertType}`}>{alertText}</div>;
 };
 
 export default Alert;
