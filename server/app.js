@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 const morgan = require('morgan');
 const AppError = require('./utils/appError');
 const errorController = require('./controllers/errorController');
+const authRouter = require('./routes/authRouter');
 
 dotenv.config({ path: './.env' });
 const app = express();
@@ -19,6 +20,8 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.send('Welcome!');
 });
+
+app.use('/api/v1/auth', authRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl}`, 404));
