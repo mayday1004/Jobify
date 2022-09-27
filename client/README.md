@@ -4,4 +4,7 @@
 3.Error Page
 4.Register Paage 5.
 5.Context
-6.Dashboard Page fetch our backend API
+6.setup proxy
+7.save register User data in appContext
+8.register Page fetch our back-end API: front-end register data to back-end API
+9.navgation to index

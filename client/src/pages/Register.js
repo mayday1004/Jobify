@@ -12,7 +12,7 @@ const initialState = {
 
 const Register = () => {
   const [values, setValues] = useState(initialState);
-  const { isLoading, showAlert, displayAlert } = useAppConsumer();
+  const { isLoading, showAlert, displayAlert, registerUser } = useAppConsumer();
 
   const handleChange = e => {
     setValues({ ...values, [e.target.name]: e.target.value });
@@ -21,10 +21,20 @@ const Register = () => {
   const onSubmit = e => {
     e.preventDefault();
     const { name, email, password, isMember } = values;
+    //按下submit的情況:
+    // 1)沒填表單，報錯
     if (!email || !password || (!isMember && !name)) {
       console.log(values);
       displayAlert();
       return;
+    }
+
+    const currentUser = { name, email, password };
+    // 2)填了Login的表單
+    if (isMember) {
+      // 3)填了Register的表單
+    } else {
+      registerUser(currentUser);
     }
   };
 

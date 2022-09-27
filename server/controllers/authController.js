@@ -8,9 +8,13 @@ exports.register = trycatch(async (req, res) => {
   const { name, email, password, location } = req.body;
   const newUser = await User.create({ name, email, password, location });
 
+  const token = newUser.signToken();
+  newUser.sendTokenCookie(req, res, token);
+
   res.status(201).json({
     status: 'success',
-    data: newUser.toJSON(),
+    token,
+    user: newUser.toJSON(),
   });
 });
 
