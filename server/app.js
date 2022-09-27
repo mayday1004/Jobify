@@ -1,12 +1,14 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
+
 const AppError = require('./utils/appError');
 const errorController = require('./controllers/errorController');
 const authRouter = require('./routes/authRouter');
 const jobRouter = require('./routes/jobRouter');
 
 dotenv.config({ path: './.env' });
+
 const app = express();
 
 //MIDDLEWARE
@@ -19,7 +21,11 @@ app.use(express.json());
 //ROUTES
 
 app.get('/', (req, res) => {
-  res.send('Welcome!');
+  res.json({ msg: 'Welcome!' });
+});
+
+app.get('/api/v1', (req, res) => {
+  res.json({ msg: 'Welcome!' });
 });
 
 app.use('/api/v1/auth', authRouter);
