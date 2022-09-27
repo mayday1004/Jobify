@@ -5,8 +5,8 @@ const trycatch = require('../utils/trycatch');
 const AppError = require('../utils/appError');
 
 exports.register = trycatch(async (req, res) => {
-  const { name, email, password } = req.body;
-  const newUser = await User.create({ name, email, password });
+  const { name, email, password, location } = req.body;
+  const newUser = await User.create({ name, email, password, location });
 
   res.status(201).json({
     status: 'success',
