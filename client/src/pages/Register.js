@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Logo, FormRow, Alert } from '../components';
 import { useAppConsumer } from '../context/appContext';
 import Wrapper from '../assets/wrappers/RegisterPage';
@@ -12,7 +13,8 @@ const initialState = {
 
 const Register = () => {
   const [values, setValues] = useState(initialState);
-  const { isLoading, showAlert, displayAlert, registerUser } = useAppConsumer();
+  const { isLoading, showAlert, displayAlert, registerUser, user, loginUser } = useAppConsumer();
+  const navigate = useNavigate();
 
   const handleChange = e => {
     setValues({ ...values, [e.target.name]: e.target.value });
@@ -32,6 +34,7 @@ const Register = () => {
     const currentUser = { name, email, password };
     // 2)填了Login的表單
     if (isMember) {
+      loginUser(currentUser);
       // 3)填了Register的表單
     } else {
       registerUser(currentUser);
@@ -41,6 +44,14 @@ const Register = () => {
   const toggleMember = () => {
     setValues({ ...values, isMember: !values.isMember });
   };
+
+  useEffect(() => {
+    if (user) {
+      setTimeout(() => {
+        navigate('/');
+      }, 3000);
+    }
+  }, [user, navigate]);
 
   return (
     <Wrapper className='full-page'>

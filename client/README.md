@@ -8,3 +8,5 @@
 7.save register User data in appContext
 8.register Page fetch our back-end API: front-end register data to back-end API
 9.navgation to index
+10.set localStorage
+11.login
