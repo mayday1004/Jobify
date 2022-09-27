@@ -4,12 +4,6 @@ const User = require('../models/userModel');
 const trycatch = require('../utils/trycatch');
 const AppError = require('../utils/appError');
 
-const signToken = function (id) {
-  return jwt.sign({ id: id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
-  });
-};
-
 exports.register = trycatch(async (req, res) => {
   const { name, email, password } = req.body;
   const newUser = await User.create({ name, email, password });
@@ -33,8 +27,9 @@ exports.login = trycatch(async (req, res, next) => {
     //  先執行查詢，如果有用戶才會進行比較密碼的動作，否則不會多一個步驟
     return next(new AppError('Incorrect email OR pasword!', 401));
   }
+  const token = user.signToken();
 
-  const token = signToken(user._id);
+  user.sendTokenCookie(req, res, token);
 
   res.status(200).json({
     status: 'success',
@@ -52,7 +47,7 @@ exports.protect = trycatch(async (req, res, next) => {
   }
 
   if (!token) {
-    return next(new AppError('You are not logged in! Please log in to get access.', 401));
+    return next(new AppError('You are not logged in! Please login to get access.', 401));
   }
 
   // 2) Verification token
