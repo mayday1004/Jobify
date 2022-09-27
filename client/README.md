@@ -10,3 +10,4 @@
 9.navgation to index
 10.set localStorage
 11.login
+12.add Dashboard's page : { AddJob, AllJobs, Profile, Stats, ShareLayout }
