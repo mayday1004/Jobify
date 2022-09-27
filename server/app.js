@@ -4,6 +4,7 @@ const morgan = require('morgan');
 const AppError = require('./utils/appError');
 const errorController = require('./controllers/errorController');
 const authRouter = require('./routes/authRouter');
+const jobRouter = require('./routes/jobRouter');
 
 dotenv.config({ path: './.env' });
 const app = express();
@@ -22,6 +23,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/job', jobRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl}`, 404));
