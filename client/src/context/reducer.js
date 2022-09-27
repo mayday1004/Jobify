@@ -22,7 +22,7 @@ const reducer = (state, action) => {
       isLoading: false,
       showAlert: true,
       alertType: 'success',
-      alertText: 'User Created! Redirectiong...',
+      alertText: action.payload.alertText,
       user: action.payload.user.name,
       token: action.payload.token,
       userLocation: action.payload.user.location,

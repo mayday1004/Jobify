@@ -32,7 +32,7 @@ const AppProvider = ({ children }) => {
     }, 3000);
   };
 
-  const addUserToLocalStorage = ({ user, token, location }) => {
+  const addUserToLocalStorage = ({ user, token }) => {
     localStorage.setItem('user', JSON.stringify(user));
     localStorage.setItem('token', token);
   };
@@ -42,28 +42,14 @@ const AppProvider = ({ children }) => {
     localStorage.removeItem('user');
   };
 
-  const registerUser = async currentUser => {
+  const setupUser = async ({ currentUser, endPoint, alertText }) => {
     dispatch({ type: SETUP_USER_BEGIN });
     try {
-      const { data } = await axios.post('/api/v1/auth/register', currentUser);
+      const { data } = await axios.post(`/api/v1/auth/${endPoint}`, currentUser);
       const { user, token } = data;
-      addUserToLocalStorage({ user, token });
-      dispatch({ type: SETUP_USER_SUCCESS, payload: { user, token } });
-    } catch ({ response }) {
-      dispatch({ type: SETUP_USER_ERROR, payload: { message: response.data.message } });
-      clearAlert();
-    }
-  };
-
-  const loginUser = async currentUser => {
-    dispatch({ type: SETUP_USER_BEGIN });
-    try {
-      const { data } = await axios.post('/api/v1/auth/login', currentUser);
-      const { user, token } = data;
-
       dispatch({
         type: SETUP_USER_SUCCESS,
-        payload: { user, token },
+        payload: { user, token, alertText },
       });
 
       addUserToLocalStorage({ user, token });
@@ -76,11 +62,7 @@ const AppProvider = ({ children }) => {
     clearAlert();
   };
 
-  return (
-    <AppContext.Provider value={{ ...state, displayAlert, registerUser, loginUser }}>
-      {children}
-    </AppContext.Provider>
-  );
+  return <AppContext.Provider value={{ ...state, displayAlert, setupUser }}>{children}</AppContext.Provider>;
 };
 
 // make sure use

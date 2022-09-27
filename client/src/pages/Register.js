@@ -13,7 +13,7 @@ const initialState = {
 
 const Register = () => {
   const [values, setValues] = useState(initialState);
-  const { isLoading, showAlert, displayAlert, registerUser, user, loginUser } = useAppConsumer();
+  const { isLoading, showAlert, displayAlert, setupUser, user } = useAppConsumer();
   const navigate = useNavigate();
 
   const handleChange = e => {
@@ -34,10 +34,10 @@ const Register = () => {
     const currentUser = { name, email, password };
     // 2)填了Login的表單
     if (isMember) {
-      loginUser(currentUser);
+      setupUser({ currentUser, endPoint: 'login', alertText: 'Login Success! Redirectiong...' });
       // 3)填了Register的表單
     } else {
-      registerUser(currentUser);
+      setupUser({ currentUser, endPoint: 'register', alertText: 'User Created! Redirectiong...' });
     }
   };
 
