@@ -1,6 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
 
 const AppError = require('./utils/appError');
 const errorController = require('./controllers/errorController');
@@ -17,6 +18,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 app.use(express.json());
+app.use(cookieParser());
 
 //ROUTES
 

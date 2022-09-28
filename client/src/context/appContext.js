@@ -9,6 +9,9 @@ import {
   SETUP_USER_ERROR,
   TOGGLE_SIDEBAR,
   LOGOUT_USER,
+  UPDATE_USER_BEGIN,
+  UPDATE_USER_SUCCESS,
+  UPDATE_USER_ERROR,
 } from './action';
 
 const token = localStorage.getItem('token');
@@ -21,7 +24,6 @@ const initialState = {
   alertType: '',
   user: user ? JSON.parse(user) : null,
   token: token,
-  userLocation: user ? JSON.parse(user).location : '',
   showSidebar: false,
 };
 const AppContext = React.createContext();
@@ -81,8 +83,29 @@ const AppProvider = ({ children }) => {
     await axios.get('/api/v1/auth/logout');
   };
 
+  const updateUser = async currentUser => {
+    dispatch({ type: UPDATE_USER_BEGIN });
+    try {
+      const { data } = await axios.patch('/api/v1/auth/updateUser', currentUser);
+      const { user, token } = data;
+      dispatch({
+        type: UPDATE_USER_SUCCESS,
+        payload: { user, token },
+      });
+      addUserToLocalStorage({ user, token });
+    } catch ({ response }) {
+      if (response.status !== 401) {
+        dispatch({
+          type: UPDATE_USER_ERROR,
+          payload: { message: response.data },
+        });
+      }
+    }
+    clearAlert();
+  };
+
   return (
-    <AppContext.Provider value={{ ...state, displayAlert, setupUser, toggleSidebar, logoutUser }}>
+    <AppContext.Provider value={{ ...state, displayAlert, setupUser, toggleSidebar, logoutUser, updateUser }}>
       {children}
     </AppContext.Provider>
   );

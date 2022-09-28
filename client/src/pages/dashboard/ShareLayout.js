@@ -1,11 +1,9 @@
 import React from 'react';
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import Wrapper from '../../assets/wrappers/SharedLayout';
 import { Navbar, SmallSidebar, BigSidebar } from '../../components';
-import { useAppConsumer } from '../../context/appContext';
 
 const ShareLayout = () => {
-  const { user } = useAppConsumer();
   return (
     <Wrapper>
       <main className='dashboard'>

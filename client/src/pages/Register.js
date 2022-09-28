@@ -26,7 +26,6 @@ const Register = () => {
     //按下submit的情況:
     // 1)沒填表單，報錯
     if (!email || !password || (!isMember && !name)) {
-      console.log(values);
       displayAlert();
       return;
     }
