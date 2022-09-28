@@ -1,16 +1,24 @@
 import React from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import Wrapper from '../../assets/wrappers/SharedLayout';
+import { Navbar, SmallSidebar, BigSidebar } from '../../components';
+import { useAppConsumer } from '../../context/appContext';
 
 const ShareLayout = () => {
+  const { user } = useAppConsumer();
   return (
     <Wrapper>
-      <nav>
-        <Link to='all-jobs'>all jobs</Link>
-        <Link to='add-job'>all jobs</Link>
-      </nav>
-      {/* 如果沒有放<Outlet /> 在這裡的話，/all-jobs & /add-job都會出現SharedLayout的畫面 */}
-      <Outlet />
+      <main className='dashboard'>
+        <SmallSidebar />
+        <BigSidebar />
+        <div>
+          <Navbar />
+          <div className='dashboard-page'>
+            {/* 如果沒有放<Outlet /> 在這裡的話，/all-jobs & /add-job只會出現stats的畫面 */}
+            <Outlet />
+          </div>
+        </div>
+      </main>
     </Wrapper>
   );
 };
