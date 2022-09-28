@@ -7,6 +7,8 @@
 
 #### 我做了哪些額外的改動
 
+1. server 端多使用 cookie 保存 token 進行身分驗證
+
 ---
 
 作品範例來自 Udemy 課程：[MERN Stack Course 2022 - MongoDB, Express, React and NodeJS](https://www.udemy.com/share/105HjC3@TL9nn4lxZGXzFFGBGLSSb5XTc-19LhMj9yJHMcNvnaW0RmpcCaOBHPzLSMz-_xhjzw==/ 'MERN Stack Course 2022 - MongoDB, Express, React and NodeJS')

@@ -1,7 +1,15 @@
 import React, { useReducer, useContext } from 'react';
 import axios from 'axios';
 import reducer from './reducer';
-import { DISPLAY_ALERT, CLEAR_ALERT, SETUP_USER_BEGIN, SETUP_USER_SUCCESS, SETUP_USER_ERROR } from './action';
+import {
+  DISPLAY_ALERT,
+  CLEAR_ALERT,
+  SETUP_USER_BEGIN,
+  SETUP_USER_SUCCESS,
+  SETUP_USER_ERROR,
+  TOGGLE_SIDEBAR,
+  LOGOUT_USER,
+} from './action';
 
 const token = localStorage.getItem('token');
 const user = localStorage.getItem('user');
@@ -14,8 +22,10 @@ const initialState = {
   user: user ? JSON.parse(user) : null,
   token: token,
   userLocation: user ? JSON.parse(user).location : '',
+  showSidebar: false,
 };
 const AppContext = React.createContext();
+
 const AppProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -62,7 +72,20 @@ const AppProvider = ({ children }) => {
     clearAlert();
   };
 
-  return <AppContext.Provider value={{ ...state, displayAlert, setupUser }}>{children}</AppContext.Provider>;
+  const toggleSidebar = () => {
+    dispatch({ type: TOGGLE_SIDEBAR });
+  };
+  const logoutUser = async () => {
+    dispatch({ type: LOGOUT_USER });
+    removeUserFromLocalStorage();
+    await axios.get('/api/v1/auth/logout');
+  };
+
+  return (
+    <AppContext.Provider value={{ ...state, displayAlert, setupUser, toggleSidebar, logoutUser }}>
+      {children}
+    </AppContext.Provider>
+  );
 };
 
 // make sure use
