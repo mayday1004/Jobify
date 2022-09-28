@@ -19,7 +19,7 @@ const SmallSidebar = () => {
             <Logo />
           </header>
           {/* 與大側邊欄共用 */}
-          <NavLinks />
+          <NavLinks toggleSidebar={toggleSidebar} />
         </div>
       </div>
     </Wrapper>

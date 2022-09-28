@@ -1,10 +1,8 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import links from '../utils/links';
-import { useAppConsumer } from '../context/appContext';
 
-const NavLinks = () => {
-  const { toggleSidebar } = useAppConsumer();
+const NavLinks = ({ toggleSidebar }) => {
   return (
     <div className='nav-links'>
       {links.map(link => {

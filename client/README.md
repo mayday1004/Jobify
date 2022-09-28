@@ -15,4 +15,6 @@ Used favicon.io & normalize.css & styled-components to setup basic style
 14.set ShareLayout page structure & created : Navbar, SmallSidebar, BigSidebar files
 15.set Navbar page structure
 16.Toggle Sidebar / Toggle logout button func
-17.NavLinks func
+17.complete SmallSidebar structure
+18.separate navlinks func in NavLinks.js
+19.complete BigSidebar structure
