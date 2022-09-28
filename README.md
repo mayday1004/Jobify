@@ -7,7 +7,8 @@
 
 #### 我做了哪些額外的改動
 
-1. server 端多使用 cookie 保存 token 進行身分驗證
+1. server 端多了使用 cookie 保存 token 進行身分驗證
+2. 新增修改密碼功能
 
 ---
 

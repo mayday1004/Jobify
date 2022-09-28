@@ -59,7 +59,7 @@ exports.protect = trycatch(async (req, res, next) => {
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
   // 3) Check if user still exists
-  const currentUser = await User.findById(decoded.id);
+  const currentUser = await User.findById(decoded.userId);
   if (!currentUser) {
     return next(new AppError('The user belonging to this token does no longer exist.', 401));
   }
@@ -77,4 +77,38 @@ exports.logout = (req, res) => {
   res.status(200).json({ status: 'success' });
 };
 
-exports.updateUser = trycatch(async (req, res) => {});
+exports.updateUser = trycatch(async (req, res) => {
+  const { email, name, location, password } = req.body;
+
+  if (password) {
+    const user = await User.findById(req.user._id);
+    user.password = password;
+    await user.save();
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      email,
+      name,
+      location,
+    },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+
+  // various setups
+  // in this case only id
+  // if other properties included, must re-generate
+
+  const token = user.signToken();
+  user.sendTokenCookie(req, res, token);
+
+  res.status(200).json({
+    status: 'success',
+    token,
+    user: user.toJSON(),
+  });
+});
