@@ -18,3 +18,4 @@ Used favicon.io & normalize.css & styled-components to setup basic style
 17.complete SmallSidebar structure
 18.separate navlinks func in NavLinks.js
 19.complete BigSidebar structure
+20.complete Profile structure

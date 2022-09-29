@@ -50,19 +50,12 @@ userSchema.methods.signToken = function () {
   });
 };
 
-userSchema.methods.sendTokenCookie = (req, res, token) => {
-  res.cookie('jwt', token, {
-    expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
-    httpOnly: true,
-    secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
-  });
-};
-
 // 不想res一些屬性給用戶看到
 userSchema.methods.toJSON = function () {
   const sentUserData = this.toObject();
   delete sentUserData.password;
   delete sentUserData.__v;
+  delete sentUserData._id;
   return sentUserData;
 };
 

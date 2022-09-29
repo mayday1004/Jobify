@@ -9,8 +9,6 @@ exports.register = trycatch(async (req, res) => {
   const newUser = await User.create({ name, email, password, location });
 
   const token = newUser.signToken();
-  newUser.sendTokenCookie(req, res, token);
-
   res.status(201).json({
     status: 'success',
     token,
@@ -32,9 +30,6 @@ exports.login = trycatch(async (req, res, next) => {
     return next(new AppError('Incorrect email OR pasword!', 401));
   }
   const token = user.signToken();
-
-  user.sendTokenCookie(req, res, token);
-
   res.status(200).json({
     status: 'success',
     token,
@@ -44,11 +39,10 @@ exports.login = trycatch(async (req, res, next) => {
 
 exports.protect = trycatch(async (req, res, next) => {
   // 1) Getting token and check of it's there
-  let token;
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
-  } else if (req.cookies.jwt) {
-    token = req.cookies.jwt;
+  } else if (req.cookies.token) {
+    token = req.cookies.token;
   }
 
   if (!token) {
@@ -57,7 +51,6 @@ exports.protect = trycatch(async (req, res, next) => {
 
   // 2) Verification token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-
   // 3) Check if user still exists
   const currentUser = await User.findById(decoded.userId);
   if (!currentUser) {
@@ -70,10 +63,11 @@ exports.protect = trycatch(async (req, res, next) => {
 });
 
 exports.logout = (req, res) => {
-  res.cookie('jwt', 'loggedout', {
+  res.cookie('token', '', {
     expires: new Date(Date.now() + 10 * 1000),
     httpOnly: true,
   });
+  req.headers.authorization.split(' ')[1] = '';
   res.status(200).json({ status: 'success' });
 };
 
@@ -104,7 +98,6 @@ exports.updateUser = trycatch(async (req, res) => {
   // if other properties included, must re-generate
 
   const token = user.signToken();
-  user.sendTokenCookie(req, res, token);
 
   res.status(200).json({
     status: 'success',

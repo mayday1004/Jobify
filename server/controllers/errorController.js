@@ -1,24 +1,32 @@
-const AppError = require('../utils/appError');
-
-// 處理mongoDB錯誤
-const duplicateKeyErrorDB = err => {
-  const message = `${Object.keys(err.keyPattern)} duplicate Key : ${Object.values(err.keyValue)}`;
-  return new AppError(message, 400);
-};
-
-const validationErrorDB = err => {
-  const errors = Object.values(err.errors).map(el => el.message);
-  const message = `Invalid input data. ${errors.join('. ')}`;
-  return new AppError(message, 400);
-};
+const AppError = require('./../utils/appError');
 
 const handleCastErrorDB = err => {
   const message = `Invalid ${err.path}: ${err.value}.`;
   return new AppError(message, 400);
 };
 
+const duplicateKeyErrorDB = err => {
+  console.log(err);
+  const message = `${Object.keys(err.keyPattern)} duplicate Key : ${Object.keys(err.keyPattern)}`;
+  return new AppError(message, 400);
+};
+
+const validationErrorDB = err => {
+  console.log(err);
+  const errors = Object.values(err.errors).map(el => el.message);
+  const message = `Invalid input data. ${errors.join('. ')}`;
+  return new AppError(message, 400);
+};
+
+const jwtError = () => {
+  return new AppError('Invalid token. Please login again', 401);
+};
+
+const tokenExpiredError = () => {
+  return new AppError('Token Expired. Please login again', 401);
+};
+
 module.exports = (err, req, res, next) => {
-  // 把app.js的錯誤處理中間層複製過來
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
@@ -33,7 +41,7 @@ module.exports = (err, req, res, next) => {
     //在用戶環境下錯誤訊息盡可能簡單
   } else if (process.env.NODE_ENV === 'production') {
     // 這裡的錯誤是mongoose發出的:
-    // 1)查詢無效ID CastError
+    // 1)轉換數值失敗
     let copyError = Object.assign(err); //替appError做淺拷貝
     if (copyError.constructor.name === 'CastError') {
       copyError = handleCastErrorDB(copyError);

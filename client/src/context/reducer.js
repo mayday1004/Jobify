@@ -35,7 +35,7 @@ const reducer = (state, action) => {
       showAlert: true,
       alertType: 'success',
       alertText: action.payload.alertText,
-      user: action.payload.user.name,
+      user: action.payload.user,
       token: action.payload.token,
     };
   }

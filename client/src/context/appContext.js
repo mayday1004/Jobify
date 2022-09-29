@@ -1,4 +1,5 @@
 import React, { useReducer, useContext } from 'react';
+import Cookies from 'js-cookie';
 import axios from 'axios';
 import reducer from './reducer';
 import {
@@ -14,8 +15,10 @@ import {
   UPDATE_USER_ERROR,
 } from './action';
 
-const token = localStorage.getItem('token');
-const user = localStorage.getItem('user');
+// const token = localStorage.getItem('token');
+// const user = localStorage.getItem('user');
+const token = Cookies.get('token');
+const user = Cookies.get('user');
 
 const initialState = {
   isLoading: false,
@@ -31,6 +34,26 @@ const AppContext = React.createContext();
 const AppProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
+  const authFetch = axios.create({
+    baseURL: '/api/v1',
+    headers: {
+      Authorization: `Bearer ${state.token}`,
+    },
+  });
+  //axios提供的中間件，想要送出請求前做什麼就用interceptors.request
+  authFetch.interceptors.response.use(
+    response => {
+      return response;
+    },
+    error => {
+      // console.log(error.response)
+      if (error.response.status === 401) {
+        logoutUser();
+      }
+      return Promise.reject(error.response);
+    }
+  );
+
   const displayAlert = () => {
     dispatch({ type: DISPLAY_ALERT });
     clearAlert();
@@ -41,34 +64,39 @@ const AppProvider = ({ children }) => {
       dispatch({
         type: CLEAR_ALERT,
       });
-    }, 3000);
+    }, 1500);
   };
 
-  const addUserToLocalStorage = ({ user, token }) => {
-    localStorage.setItem('user', JSON.stringify(user));
-    localStorage.setItem('token', token);
+  const addUserToCookie = ({ user, token }) => {
+    // localStorage.setItem('user', JSON.stringify(user));
+    // localStorage.setItem('token', token);
+    Cookies.set('token', token, { expires: 1 });
+    Cookies.set('user', JSON.stringify(user), {
+      expires: 1,
+    });
   };
 
-  const removeUserFromLocalStorage = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+  const removeUserFromCookie = () => {
+    // localStorage.removeItem('token');
+    // localStorage.removeItem('user');
+    Cookies.remove('token', { path: '' });
+    Cookies.remove('user', { path: '' });
   };
 
   const setupUser = async ({ currentUser, endPoint, alertText }) => {
     dispatch({ type: SETUP_USER_BEGIN });
     try {
-      const { data } = await axios.post(`/api/v1/auth/${endPoint}`, currentUser);
+      const { data } = await authFetch.post(`/auth/${endPoint}`, currentUser);
       const { user, token } = data;
       dispatch({
         type: SETUP_USER_SUCCESS,
         payload: { user, token, alertText },
       });
-
-      addUserToLocalStorage({ user, token });
-    } catch ({ response }) {
+      addUserToCookie({ user, token });
+    } catch (error) {
       dispatch({
         type: SETUP_USER_ERROR,
-        payload: { message: response.data.message },
+        payload: { message: error.data.message },
       });
     }
     clearAlert();
@@ -79,25 +107,26 @@ const AppProvider = ({ children }) => {
   };
   const logoutUser = async () => {
     dispatch({ type: LOGOUT_USER });
-    removeUserFromLocalStorage();
-    await axios.get('/api/v1/auth/logout');
+    await authFetch.get('/auth/logout');
+    removeUserFromCookie();
   };
 
   const updateUser = async currentUser => {
     dispatch({ type: UPDATE_USER_BEGIN });
     try {
-      const { data } = await axios.patch('/api/v1/auth/updateUser', currentUser);
+      const { data } = await authFetch.patch('/auth/updateUser', currentUser);
       const { user, token } = data;
       dispatch({
         type: UPDATE_USER_SUCCESS,
         payload: { user, token },
       });
-      addUserToLocalStorage({ user, token });
-    } catch ({ response }) {
-      if (response.status !== 401) {
+      addUserToCookie({ user, token });
+    } catch (error) {
+      if (error.status !== 401) {
+        //如果是401錯誤會被axios攔截器處理
         dispatch({
           type: UPDATE_USER_ERROR,
-          payload: { message: response.data },
+          payload: { message: error.data.message },
         });
       }
     }
