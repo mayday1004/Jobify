@@ -24,7 +24,7 @@ const JobSchema = new mongoose.Schema(
     },
     jobLocation: {
       type: String,
-      default: 'my city',
+      default: 'Taichung',
       required: true,
     },
     createdBy: {

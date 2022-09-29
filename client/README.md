@@ -19,3 +19,6 @@ Used favicon.io & normalize.css & styled-components to setup basic style
 18.separate navlinks func in NavLinks.js
 19.complete BigSidebar structure
 20.complete Profile structure
+21.cookie instead localstorage
+22.complete AddJob structure
+23.complete AllJobs structure

@@ -22,12 +22,8 @@ app.use(cookieParser());
 
 //ROUTES
 
-app.get('/', (req, res) => {
-  res.json({ msg: 'Welcome!' });
-});
-
 app.use('/api/v1/auth', authRouter);
-app.use('/api/v1/job', jobRouter);
+app.use('/api/v1/jobs', jobRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl}`, 404));

@@ -13,6 +13,11 @@ import {
   UPDATE_USER_BEGIN,
   UPDATE_USER_SUCCESS,
   UPDATE_USER_ERROR,
+  HANDLE_CHANGE,
+  CLEAR_VALUES,
+  CREATE_JOB_BEGIN,
+  CREATE_JOB_SUCCESS,
+  CREATE_JOB_ERROR,
 } from './action';
 
 // const token = localStorage.getItem('token');
@@ -21,6 +26,7 @@ const token = Cookies.get('token');
 const user = Cookies.get('user');
 
 const initialState = {
+  //USER
   isLoading: false,
   showAlert: false,
   alertText: '',
@@ -28,6 +34,16 @@ const initialState = {
   user: user ? JSON.parse(user) : null,
   token: token,
   showSidebar: false,
+  //JOB
+  isEditing: false,
+  editJobId: '',
+  position: '',
+  company: '',
+  jobLocation: user ? JSON.parse(user).location : 'Taichung',
+  jobTypeOptions: ['full-time', 'part-time', 'remote', 'internship'],
+  jobType: 'full-time',
+  statusOptions: ['pending', 'interview', 'declined'],
+  status: 'pending',
 };
 const AppContext = React.createContext();
 
@@ -66,7 +82,11 @@ const AppProvider = ({ children }) => {
       });
     }, 1500);
   };
+  const toggleSidebar = () => {
+    dispatch({ type: TOGGLE_SIDEBAR });
+  };
 
+  //USER
   const addUserToCookie = ({ user, token }) => {
     // localStorage.setItem('user', JSON.stringify(user));
     // localStorage.setItem('token', token);
@@ -75,7 +95,6 @@ const AppProvider = ({ children }) => {
       expires: 1,
     });
   };
-
   const removeUserFromCookie = () => {
     // localStorage.removeItem('token');
     // localStorage.removeItem('user');
@@ -101,16 +120,11 @@ const AppProvider = ({ children }) => {
     }
     clearAlert();
   };
-
-  const toggleSidebar = () => {
-    dispatch({ type: TOGGLE_SIDEBAR });
-  };
   const logoutUser = async () => {
     dispatch({ type: LOGOUT_USER });
     await authFetch.get('/auth/logout');
     removeUserFromCookie();
   };
-
   const updateUser = async currentUser => {
     dispatch({ type: UPDATE_USER_BEGIN });
     try {
@@ -133,8 +147,57 @@ const AppProvider = ({ children }) => {
     clearAlert();
   };
 
+  //JOB
+  const handleChange = ({ name, value }) => {
+    dispatch({
+      type: HANDLE_CHANGE,
+      payload: { name, value },
+    });
+  };
+  const clearValues = () => {
+    dispatch({ type: CLEAR_VALUES });
+  };
+
+  const createJob = async () => {
+    dispatch({ type: CREATE_JOB_BEGIN });
+    try {
+      const { position, company, jobLocation, jobType, status } = state;
+
+      await authFetch.post('/jobs', {
+        company,
+        position,
+        jobLocation,
+        jobType,
+        status,
+      });
+      dispatch({
+        type: CREATE_JOB_SUCCESS,
+      });
+      // call function instead clearValues()
+      dispatch({ type: CLEAR_VALUES });
+    } catch (error) {
+      if (error.status === 401) return;
+      dispatch({
+        type: CREATE_JOB_ERROR,
+        payload: { message: error.data.message },
+      });
+    }
+    clearAlert();
+  };
   return (
-    <AppContext.Provider value={{ ...state, displayAlert, setupUser, toggleSidebar, logoutUser, updateUser }}>
+    <AppContext.Provider
+      value={{
+        ...state,
+        displayAlert,
+        setupUser,
+        toggleSidebar,
+        logoutUser,
+        updateUser,
+        handleChange,
+        clearValues,
+        createJob,
+      }}
+    >
       {children}
     </AppContext.Provider>
   );
