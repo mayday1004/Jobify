@@ -21,4 +21,6 @@ Used favicon.io & normalize.css & styled-components to setup basic style
 20.complete Profile structure
 21.cookie instead localstorage
 22.complete AddJob structure
-23.complete AllJobs structure
+23.AllJobs structure - getAllJobs
+23.AllJobs structure - edit job
+23.AllJobs structure - delete job

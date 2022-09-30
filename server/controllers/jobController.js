@@ -1,6 +1,7 @@
 const Job = require('../models/jobModel');
 const trycatch = require('../utils/trycatch');
 const AppError = require('../utils/appError');
+const isAuthorizedJob = require('../utils/unauthorizedJob');
 
 exports.getAllJobs = trycatch(async (req, res) => {
   const jobs = await Job.find({ createdBy: req.user.id });
@@ -50,9 +51,7 @@ exports.updateJob = trycatch(async (req, res, next) => {
   }
 
   // 避免有人修改別人的job
-  if (job.createdBy._id.toString() !== req.user.id) {
-    return next(new AppError('Unauthorized Job', 401));
-  }
+  isAuthorizedJob(req.user.id, job.createdBy._id);
 
   await Job.findByIdAndUpdate(
     req.params.id,
@@ -70,5 +69,18 @@ exports.updateJob = trycatch(async (req, res, next) => {
 });
 
 exports.deleteJob = trycatch(async (req, res) => {
-  console.log(deleteJob);
+  const job = await Job.findById(req.params.id);
+
+  if (!job) {
+    next(new AppError(`No job with id ${req.params.id}`, 400));
+  }
+
+  // 避免有人刪除別人的job
+  isAuthorizedJob(req.user.id, job.createdBy._id);
+
+  await Job.findByIdAndDelete(req.params.id);
+
+  res.status(200).json({
+    status: 'success',
+  });
 });
