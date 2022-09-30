@@ -18,13 +18,18 @@ const AddJob = () => {
     handleChange,
     clearValues,
     createJob,
+    editJob,
   } = useAppConsumer();
 
   const handleSubmit = e => {
     e.preventDefault();
 
+    if (!position || !company) {
+      displayAlert();
+      return;
+    }
     if (isEditing) {
-      // eventually editJob()
+      editJob();
       return;
     }
     createJob();

@@ -4,7 +4,8 @@ import { useAppConsumer } from '../context/appContext';
 
 const ProtectRoute = ({ children }) => {
   const { user, token, logoutUser } = useAppConsumer();
-  if (token && token !== Cookies.get('token')) {
+  const cookie = Cookies.get('token');
+  if ((!cookie && token) || (cookie && token !== cookie)) {
     logoutUser();
   }
 

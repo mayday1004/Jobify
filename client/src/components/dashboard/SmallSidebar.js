@@ -2,7 +2,7 @@ import React from 'react';
 
 import { FaTimes } from 'react-icons/fa';
 import Wrapper from '../../assets/wrappers/SmallSidebar';
-import NavLinks from '../NavLinks';
+import NavLinks from './NavLinks';
 import Logo from '../Logo';
 import { useAppConsumer } from '../../context/appContext';
 

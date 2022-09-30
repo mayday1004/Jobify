@@ -1,6 +1,6 @@
 import React from 'react';
 import Wrapper from '../../assets/wrappers/BigSidebar';
-import NavLinks from '../NavLinks';
+import NavLinks from './NavLinks';
 import Logo from '../Logo';
 import { useAppConsumer } from '../../context/appContext';
 
