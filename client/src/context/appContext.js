@@ -21,10 +21,10 @@ import {
   GET_JOBS_BEGIN,
   GET_JOBS_SUCCESS,
   SET_EDIT_JOB,
-  DELETE_JOB_BEGIN,
   EDIT_JOB_BEGIN,
   EDIT_JOB_SUCCESS,
   EDIT_JOB_ERROR,
+  DELETE_JOB_BEGIN,
 } from './action';
 
 // const token = localStorage.getItem('token');
@@ -73,7 +73,6 @@ const AppProvider = ({ children }) => {
       return response;
     },
     error => {
-      // console.log(error.response)
       if (error.response.status === 401) {
         logoutUser();
       }
