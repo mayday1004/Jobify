@@ -63,10 +63,7 @@ exports.protect = trycatch(async (req, res, next) => {
 });
 
 exports.logout = (req, res) => {
-  res.cookie('token', null, {
-    expires: new Date(Date.now() + 10 * 1000),
-    httpOnly: true,
-  });
+  res.clearCookie('token');
   req.headers.authorization.split(' ')[1] = '';
   res.status(200).json({ status: 'success' });
 };
