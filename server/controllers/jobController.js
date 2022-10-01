@@ -3,16 +3,54 @@ const moment = require('moment');
 const Job = require('../models/jobModel');
 const trycatch = require('../utils/trycatch');
 const AppError = require('../utils/appError');
+const APIquery = require('../utils/APIquery');
 const isAuthorizedJob = require('../utils/unauthorizedJob');
 
 exports.getAllJobs = trycatch(async (req, res) => {
-  const jobs = await Job.find({ createdBy: req.user.id });
+  // /?position=p,status=pending,jobType=full-time,sort=latest
+
+  const { search, status, jobType, sort, limit } = req.query;
+  const reqQuery = {
+    ...req.query,
+    createdBy: req.user.id,
+  };
+  if (status && status !== 'all') {
+    reqQuery.status = status;
+  } else {
+    delete reqQuery.status;
+  }
+  if (jobType && jobType !== 'all') {
+    reqQuery.jobType = jobType;
+  } else {
+    delete reqQuery.jobType;
+  }
+  if (search) {
+    reqQuery.position = { $regex: search, $options: 'i' };
+    delete reqQuery.search;
+  }
+
+  if (sort === 'latest') {
+    reqQuery.sort = '-createdAt';
+  }
+  if (sort === 'oldest') {
+    reqQuery.sort = 'createdAt';
+  }
+  if (sort === 'a-z') {
+    reqQuery.sort = 'position';
+  }
+  if (sort === 'z-a') {
+    reqQuery.sort = '-position';
+  }
+
+  const execQuery = new APIquery(Job, reqQuery).sort().fields().page();
+  const searchJobs = await execQuery.foundQuery;
+  const totalJobs = await Job.countDocuments(reqQuery);
 
   res.status(200).json({
     status: 'success',
-    totalJobs: jobs.length,
-    numOfPages: 1,
-    jobs: jobs,
+    totalJobs,
+    numOfPages: Math.ceil(totalJobs / (limit || 10)),
+    jobs: searchJobs,
   });
 });
 

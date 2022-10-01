@@ -27,3 +27,5 @@ Used favicon.io & normalize.css & styled-components to setup basic style
 24.Stats structure - get Stats : status
 24.Stats structure - install recharts
 24.Stats structure - get Stats : monthlyApplications
+25.AllJobs structure - Search Form
+26.AllJobs structure - page button
