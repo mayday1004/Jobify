@@ -24,3 +24,6 @@ Used favicon.io & normalize.css & styled-components to setup basic style
 23.AllJobs structure - getAllJobs
 23.AllJobs structure - edit job
 23.AllJobs structure - delete job
+24.Stats structure - get Stats : status
+24.Stats structure - install recharts
+24.Stats structure - get Stats : monthlyApplications

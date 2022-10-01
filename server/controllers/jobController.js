@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+const moment = require('moment');
 const Job = require('../models/jobModel');
 const trycatch = require('../utils/trycatch');
 const AppError = require('../utils/appError');
@@ -35,7 +37,63 @@ exports.createJob = trycatch(async (req, res, next) => {
 });
 
 exports.showStats = trycatch(async (req, res) => {
-  console.log(showStats);
+  let stats = await Job.aggregate([
+    { $match: { createdBy: mongoose.Types.ObjectId(req.user.id) } },
+    { $group: { _id: '$status', count: { $sum: 1 } } },
+  ]); //[{"_id": "pending","count": 25},{"_id": "declined","count": 29},{"_id": "interview","count": 21}]
+
+  // make stats => {"interview": 21,"pending": 25,"declined": 29}
+  stats = stats.reduce((acc, curr) => {
+    const { _id: title, count } = curr;
+    acc[title] = count;
+    return acc;
+  }, {});
+
+  const defaultStats = {
+    pending: stats.pending || 0,
+    interview: stats.interview || 0,
+    declined: stats.declined || 0,
+  };
+
+  let monthlyApplications = await Job.aggregate([
+    { $match: { createdBy: mongoose.Types.ObjectId(req.user.id) } },
+    {
+      $group: {
+        _id: {
+          year: {
+            $year: '$createdAt',
+          },
+          month: {
+            $month: '$createdAt',
+          },
+        },
+        count: { $sum: 1 },
+      },
+    },
+    { $sort: { '_id.year': -1, '_id.month': -1 } },
+    { $limit: 6 },
+  ]);
+
+  monthlyApplications = monthlyApplications
+    .map(item => {
+      const {
+        _id: { year, month },
+        count,
+      } = item;
+      // accepts 0-11
+      const date = moment()
+        .month(month - 1)
+        .year(year)
+        .format('MMM Y');
+      return { date, count };
+    })
+    .reverse();
+
+  res.status(200).json({
+    status: 'success',
+    defaultStats,
+    monthlyApplications,
+  });
 });
 
 exports.updateJob = trycatch(async (req, res, next) => {

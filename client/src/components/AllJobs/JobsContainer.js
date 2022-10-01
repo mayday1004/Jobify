@@ -1,6 +1,6 @@
 import { useAppConsumer } from '../../context/appContext';
 import { useEffect } from 'react';
-import Loading from './Loading';
+import Loading from '../Loading';
 import Job from './Job';
 import Wrapper from '../../assets/wrappers/JobsContainer';
 
