@@ -1,4 +1,4 @@
-const AppError = require('../utils/appError');
+const AppError = require('./AppError');
 
 const isAuthorizedJob = (UserId, createdById) => {
   if (createdById.toString() !== UserId) {

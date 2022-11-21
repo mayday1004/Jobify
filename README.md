@@ -1,13 +1,9 @@
-### Jobify
+## Jobify
 
 這是一個紀錄面試日程的應用程序，使用 MongoDB、Express、React 和 NodeJS 從頭開始構建
-查看項目演示 👉 [Jobify](http://aaa.com 'Jobify')
+註冊或登入一個帳號，你可以自由添加 / 編輯 / 刪除日程，並透過查詢、排序來查看，同時程序也將自動統計您的日程資料
 
-您可以使用 `guest@example.com` 和密碼 `guest1234` 登入
-
-#### 我做了哪些額外的改動
-
-1. 新增修改密碼功能
+查看項目演示 👉 [Jobify](https://jobify.onrender.com/ 'Jobify')
 
 ---
 

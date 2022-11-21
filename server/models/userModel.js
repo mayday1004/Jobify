@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const config = require('../config');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -45,8 +46,8 @@ userSchema.methods.comparePassword = async function (originPassword, hashedPassw
 };
 
 userSchema.methods.signToken = function () {
-  return jwt.sign({ userId: this._id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
+  return jwt.sign({ userId: this._id }, config.jwtSecret, {
+    expiresIn: config.jwtMaxAge,
   });
 };
 

@@ -1,4 +1,5 @@
-const AppError = require('./../utils/appError');
+const AppError = require('../utils/AppError');
+const config = require('../config');
 
 const handleCastErrorDB = err => {
   const message = `Invalid ${err.path}: ${err.value}.`;
@@ -31,7 +32,7 @@ module.exports = (err, req, res, next) => {
   err.status = err.status || 'error';
 
   // 在開發環境下錯誤訊息盡可能多
-  if (process.env.NODE_ENV === 'development') {
+  if (config.env === 'development') {
     res.status(err.statusCode).json({
       status: err.status,
       error: err,
@@ -39,7 +40,7 @@ module.exports = (err, req, res, next) => {
       stack: err.stack,
     });
     //在用戶環境下錯誤訊息盡可能簡單
-  } else if (process.env.NODE_ENV === 'production') {
+  } else if (config.env === 'production') {
     // 這裡的錯誤是mongoose發出的:
     // 1)轉換數值失敗
     let copyError = Object.assign(err); //替appError做淺拷貝

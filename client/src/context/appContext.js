@@ -1,6 +1,7 @@
-import React, { useReducer, useContext, useEffect } from 'react';
+import React, { useReducer, useContext } from 'react';
 import Cookies from 'js-cookie';
 import axios from 'axios';
+import * as config from '../config';
 import reducer from './reducer';
 import {
   DISPLAY_ALERT,
@@ -25,32 +26,30 @@ import {
   EDIT_JOB_SUCCESS,
   EDIT_JOB_ERROR,
   DELETE_JOB_BEGIN,
+  DELETE_JOB_ERROR,
   SHOW_STATS_BEGIN,
   SHOW_STATS_SUCCESS,
   CLEAR_FILTERS,
   CHANGE_PAGE,
 } from './action';
 
-// const token = localStorage.getItem('token');
-// const user = localStorage.getItem('user');
-const token = Cookies.get('token');
 const user = Cookies.get('user');
 
 const initialState = {
   //USER
+  userLoading: true,
   isLoading: false,
   showAlert: false,
   alertText: '',
   alertType: '',
-  user: user ? JSON.parse(user) : null,
-  token: token ? token : null,
+  user: user ? JSON.parse(user.slice(user.indexOf('{'), user.indexOf('}') + 1)) : null,
   showSidebar: false,
   //JOB
   isEditing: false,
   editJobId: '',
   position: '',
   company: '',
-  jobLocation: user ? JSON.parse(user).location : 'Taichung',
+  jobLocation: user ? JSON.parse(user.slice(user.indexOf('{'), user.indexOf('}') + 1)).location : 'Taichung',
   jobTypeOptions: ['full-time', 'part-time', 'remote', 'internship'],
   jobType: 'full-time',
   statusOptions: ['pending', 'interview', 'declined'],
@@ -73,9 +72,11 @@ const AppProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const authFetch = axios.create({
-    baseURL: '/api/v1',
+    baseURL: `${config.fetchUrl}/api/v1`,
+    withCredentials: true,
     headers: {
-      Authorization: `Bearer ${state.token}`,
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
     },
   });
   // axios提供的中間件，想要送出請求前做什麼就用interceptors.request
@@ -91,10 +92,6 @@ const AppProvider = ({ children }) => {
     }
   );
 
-  // useEffect(() => {
-  //   getJobs();
-  // }, [user]);
-
   const displayAlert = () => {
     dispatch({ type: DISPLAY_ALERT });
     clearAlert();
@@ -105,38 +102,21 @@ const AppProvider = ({ children }) => {
       dispatch({
         type: CLEAR_ALERT,
       });
-    }, 1500);
+    }, 3000);
   };
   const toggleSidebar = () => {
     dispatch({ type: TOGGLE_SIDEBAR });
   };
-
-  //USER
-  const addUserToCookie = ({ user, token }) => {
-    // localStorage.setItem('user', JSON.stringify(user));
-    // localStorage.setItem('token', token);
-    Cookies.set('token', token, { expires: 1 });
-    Cookies.set('user', JSON.stringify(user), {
-      expires: 1,
-    });
-  };
-  const removeUserFromCookie = () => {
-    // localStorage.removeItem('token');
-    // localStorage.removeItem('user');
-    Cookies.remove('token', { path: '' });
-    Cookies.remove('user', { path: '' });
-  };
-
   const setupUser = async ({ currentUser, endPoint, alertText }) => {
     dispatch({ type: SETUP_USER_BEGIN });
     try {
       const { data } = await authFetch.post(`/auth/${endPoint}`, currentUser);
-      const { user, token } = data;
+      const { user } = data;
+
       dispatch({
         type: SETUP_USER_SUCCESS,
-        payload: { user, token, alertText },
+        payload: { user, alertText },
       });
-      addUserToCookie({ user, token });
     } catch (error) {
       dispatch({
         type: SETUP_USER_ERROR,
@@ -146,20 +126,18 @@ const AppProvider = ({ children }) => {
     clearAlert();
   };
   const logoutUser = async () => {
-    dispatch({ type: LOGOUT_USER });
     await authFetch.get('/auth/logout');
-    removeUserFromCookie();
+    dispatch({ type: LOGOUT_USER });
   };
   const updateUser = async currentUser => {
     dispatch({ type: UPDATE_USER_BEGIN });
     try {
       const { data } = await authFetch.patch('/auth/updateUser', currentUser);
-      const { user, token } = data;
+      const { user } = data;
       dispatch({
         type: UPDATE_USER_SUCCESS,
-        payload: { user, token },
+        payload: { user },
       });
-      addUserToCookie({ user, token });
     } catch (error) {
       if (error.status !== 401) {
         //如果是401錯誤會被axios攔截器處理
@@ -210,7 +188,6 @@ const AppProvider = ({ children }) => {
     clearAlert();
   };
   const getJobs = async () => {
-    // will add page later
     const { search, searchStatus, searchType, sort, page } = state;
     let url = `/jobs?page=${page}&status=${searchStatus}&jobType=${searchType}&sort=${sort}`;
     if (search) {
@@ -242,8 +219,15 @@ const AppProvider = ({ children }) => {
       await authFetch.delete(`/jobs/${jobId}`);
       getJobs();
     } catch (error) {
-      logoutUser();
+      if (error.status === 401) {
+        return;
+      }
+      dispatch({
+        type: DELETE_JOB_ERROR,
+        payload: { message: error.data.message },
+      });
     }
+    clearAlert();
   };
   const editJob = async () => {
     dispatch({ type: EDIT_JOB_BEGIN });
@@ -262,7 +246,9 @@ const AppProvider = ({ children }) => {
       });
       dispatch({ type: CLEAR_VALUES });
     } catch (error) {
-      if (error.status === 401) return;
+      if (error.status === 401) {
+        return;
+      }
       dispatch({
         type: EDIT_JOB_ERROR,
         payload: { message: error.data.message },
@@ -274,7 +260,7 @@ const AppProvider = ({ children }) => {
   const showStats = async () => {
     dispatch({ type: SHOW_STATS_BEGIN });
     try {
-      const { data } = await authFetch.get('/jobs/stats');
+      const { data } = await authFetch('/jobs/stats');
       dispatch({
         type: SHOW_STATS_SUCCESS,
         payload: {

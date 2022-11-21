@@ -18,6 +18,7 @@ import {
   GET_JOBS_SUCCESS,
   SET_EDIT_JOB,
   DELETE_JOB_BEGIN,
+  DELETE_JOB_ERROR,
   EDIT_JOB_BEGIN,
   EDIT_JOB_SUCCESS,
   EDIT_JOB_ERROR,
@@ -46,7 +47,6 @@ const reducer = (state, action) => {
       showSidebar: !state.showSidebar,
     };
   }
-
   if (action.type === SETUP_USER_BEGIN) {
     return { ...state, isLoading: true };
   }
@@ -58,7 +58,6 @@ const reducer = (state, action) => {
       alertType: 'success',
       alertText: action.payload.alertText,
       user: action.payload.user,
-      token: action.payload.token,
     };
   }
   if (action.type === SETUP_USER_ERROR) {
@@ -75,7 +74,7 @@ const reducer = (state, action) => {
     return {
       ...initialState,
       user: null,
-      token: null,
+      userLoading: false,
     };
   }
 
@@ -86,7 +85,6 @@ const reducer = (state, action) => {
     return {
       ...state,
       isLoading: false,
-      token: action.payload.token,
       user: action.payload.user,
       showAlert: true,
       alertType: 'success',
@@ -170,6 +168,15 @@ const reducer = (state, action) => {
   if (action.type === DELETE_JOB_BEGIN) {
     return { ...state, isLoading: true };
   }
+  if (action.type === DELETE_JOB_ERROR) {
+    return {
+      ...state,
+      isLoading: false,
+      showAlert: true,
+      alertType: 'danger',
+      alertText: action.payload.message,
+    };
+  }
   if (action.type === EDIT_JOB_BEGIN) {
     return { ...state, isLoading: true };
   }
@@ -188,7 +195,7 @@ const reducer = (state, action) => {
       isLoading: false,
       showAlert: true,
       alertType: 'danger',
-      alertText: action.payload.msg,
+      alertText: action.payload.message,
     };
   }
 

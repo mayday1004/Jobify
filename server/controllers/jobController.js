@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const moment = require('moment');
 const Job = require('../models/jobModel');
 const trycatch = require('../utils/trycatch');
-const AppError = require('../utils/appError');
+const AppError = require('../utils/AppError');
 const APIquery = require('../utils/APIquery');
 const isAuthorizedJob = require('../utils/unauthorizedJob');
 
@@ -76,7 +76,7 @@ exports.createJob = trycatch(async (req, res, next) => {
 
 exports.showStats = trycatch(async (req, res) => {
   let stats = await Job.aggregate([
-    { $match: { createdBy: mongoose.Types.ObjectId(req.user.id) } },
+    { $match: { createdBy: mongoose.Types.ObjectId(req.user._id) } },
     { $group: { _id: '$status', count: { $sum: 1 } } },
   ]); //[{"_id": "pending","count": 25},{"_id": "declined","count": 29},{"_id": "interview","count": 21}]
 
@@ -94,7 +94,7 @@ exports.showStats = trycatch(async (req, res) => {
   };
 
   let monthlyApplications = await Job.aggregate([
-    { $match: { createdBy: mongoose.Types.ObjectId(req.user.id) } },
+    { $match: { createdBy: mongoose.Types.ObjectId(req.user._id) } },
     {
       $group: {
         _id: {
@@ -147,7 +147,7 @@ exports.updateJob = trycatch(async (req, res, next) => {
   }
 
   // 避免有人修改別人的job
-  isAuthorizedJob(req.user.id, job.createdBy._id);
+  isAuthorizedJob(req.user._id, job.createdBy._id);
 
   await Job.findByIdAndUpdate(
     req.params.id,

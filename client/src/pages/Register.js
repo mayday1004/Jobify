@@ -40,6 +40,17 @@ const Register = () => {
     }
   };
 
+  const guestUserLogin = () => {
+    setupUser({
+      currentUser: {
+        email: 'guest@example.com',
+        password: 'guest1234',
+      },
+      endPoint: 'login',
+      alertText: 'Login Success! Redirectiong...',
+    });
+  };
+
   const toggleMember = () => {
     setValues({ ...values, isMember: !values.isMember });
   };
@@ -80,6 +91,15 @@ const Register = () => {
         />
         <button type='submit' className='btn btn-block' disabled={isLoading}>
           submit
+        </button>
+
+        <button
+          type='button'
+          className='btn btn-block btn-hipster'
+          disabled={isLoading}
+          onClick={guestUserLogin}
+        >
+          {isLoading ? 'loading...' : 'demo account'}
         </button>
         <p>
           {values.isMember ? 'Not a member yet?' : 'Already a member?'}
